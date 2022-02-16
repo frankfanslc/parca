@@ -46,6 +46,11 @@ func TestStore(t *testing.T) {
 	sym, err := symbol.NewSymbolizer(logger)
 	require.NoError(t, err)
 
+	httpDebugInfoClient, err := NewHttpDebugInfoClient("https://debuginfod.systemtap.org")
+	require.NoError(t, err)
+
+	debuginfodClientCache := NewObjectStorageDebugInfodClientCache(context.Background(), logger, httpDebugInfoClient)
+
 	s, err := NewStore(
 		logger,
 		sym,
@@ -63,7 +68,8 @@ func TestStore(t *testing.T) {
 				},
 			},
 		},
-		"https://debuginfod.systemtap.org")
+		debuginfodClientCache,
+	)
 	require.NoError(t, err)
 
 	lis, err := net.Listen("tcp", ":0")
